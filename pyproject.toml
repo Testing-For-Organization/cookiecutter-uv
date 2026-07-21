@@ -9,8 +9,8 @@ requires-python = ">=3.10,<4.0"
 dependencies = [
   "click>=8.1.7",
   "cookiecutter>=2.7.1",
-  # Intentionally narrow pin so Felix has a clear upgrade target for QA remediation tests.
-  "requests>=2.28.0,<2.32.0",
+  # Exact pin so Felix has a clear upgrade path (2.28.0 -> 2.31.0) for QA remediation tests.
+  "requests==2.28.0",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
