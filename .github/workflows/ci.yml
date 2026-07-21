@@ -1,0 +1,40 @@
+# Lightweight CI for Felix upgrade-PR monitoring / remediation testing.
+# Keep this job fast and deterministic — heavy matrix stays in main.yml.
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up the environment
+        uses: ./.github/actions/setup-python-env
+        with:
+          python-version: "3.12"
+
+      - name: Install package
+        run: uv sync --frozen
+
+      - name: Run unit + Felix integration tests
+        run: uv run python -m pytest tests/test_felix_integration.py tests/test_cookiecutter.py -q --tb=short
+
+      - name: Import smoke check
+        run: |
+          uv run python -c "
+          import click
+          import cookiecutter
+          import requests
+          print(f'click={getattr(click, \"__version__\", \"?\")}')
+          print(f'cookiecutter={getattr(cookiecutter, \"__version__\", \"?\")}')
+          print(f'requests={requests.__version__}')
+          "
